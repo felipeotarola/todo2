@@ -1,45 +1,55 @@
-"use client"
+import { useState, useEffect } from "react";
+import { CheckCircle2, Circle, Plus, Trash2 } from "lucide-react";
 
-import { useState } from "react"
-import { CheckCircle2, Circle, Plus, Trash2 } from "lucide-react"
-
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { db } from "./firebase"; // adjust path as necessary
+import { collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
 
 interface Todo {
-  id: number
-  text: string
-  completed: boolean
+  id: string;
+  text: string;
+  completed: boolean;
 }
 
 export function TodoAppComponent() {
-  const [todos, setTodos] = useState<Todo[]>([
-    { id: 1, text: "Create a todo app with v0", completed: true },
-    { id: 2, text: "Create a nextJs application", completed: false },
-    { id: 3, text: "Add v0 component to application", completed: false },
-    { id: 4, text: "Create GitHub Repository", completed: false },
-    { id: 5, text: "Push to GitHub", completed: false },
-    { id: 6, text: "Deploy to Vercel", completed: false },
-  ])
-  const [newTodo, setNewTodo] = useState("")
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [newTodo, setNewTodo] = useState("");
 
-  const addTodo = () => {
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, 'todos'), (snapshot) => {
+      const todosData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setTodos(todosData);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const addTodo = async () => {
     if (newTodo.trim() !== "") {
-      setTodos([...todos, { id: Date.now(), text: newTodo, completed: false }])
-      setNewTodo("")
+      await addDoc(collection(db, 'todos'), {
+        text: newTodo,
+        completed: false,
+      });
+      setNewTodo("");
     }
-  }
+  };
 
-  const toggleTodo = (id: number) => {
-    setTodos(todos.map(todo => 
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
-    ))
-  }
+  const toggleTodo = async (id: string, completed: boolean) => {
+    const todoRef = doc(db, 'todos', id);
+    await updateDoc(todoRef, {
+      completed: !completed,
+    });
+  };
 
-  const deleteTodo = (id: number) => {
-    setTodos(todos.filter(todo => todo.id !== id))
-  }
+  const deleteTodo = async (id: string) => {
+    const todoRef = doc(db, 'todos', id);
+    await deleteDoc(todoRef);
+  };
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -64,7 +74,7 @@ export function TodoAppComponent() {
           {todos.map((todo) => (
             <li key={todo.id} className="flex items-center justify-between p-2 bg-secondary rounded-md">
               <div className="flex items-center space-x-2">
-                <Button variant="ghost" size="icon" onClick={() => toggleTodo(todo.id)}>
+                <Button variant="ghost" size="icon" onClick={() => toggleTodo(todo.id, todo.completed)}>
                   {todo.completed ? (
                     <CheckCircle2 className="h-5 w-5 text-primary" />
                   ) : (
@@ -88,5 +98,5 @@ export function TodoAppComponent() {
         </p>
       </CardFooter>
     </Card>
-  )
+  );
 }
