@@ -1,0 +1,1 @@
+Developed backend and frontend components for user authentication. Implemented secure authentication logic using a Node.js or Django server and a user-friendly login interface in React.js. Ensured proper validation and error handling on both server and client sides.
