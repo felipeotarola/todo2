@@ -44,7 +44,7 @@ export function TodoAppComponent() {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>Todo App</CardTitle>
+        <CardTitle>the best todo app in the world</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex space-x-2 mb-4">
