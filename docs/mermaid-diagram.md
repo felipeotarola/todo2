@@ -1,0 +1,15 @@
+flowchart TD;
+    A[Start] --> B[Init React Components];
+    B --> C[TodoAppComponent];
+    C --> D[Input Component];
+    C --> E[Button Component];
+    C --> F[Card Component];
+    F --> F1[CardHeader];
+    F --> F2[CardContent];
+    F --> F3[CardFooter];
+    C --> DB[(Database)];
+    DB -->|Types| DB1[Todo Type];
+    DB -->|Types| DB2[User Type];
+    DB -->|Types| DB3[Task Type];
+    DB -->|Types| DB4[Task Type];
+    E --> G[End];
